@@ -8,7 +8,7 @@
     <title>115年公共工程品質管理訓練班（土建）測驗題庫刷題網</title>
     
     <!-- SEO & AdSense -->
-    <meta name="description" content="115年公共工程品質管理訓練班（土建）題庫刷題、錯題分析、考點解析與單元練習。">
+    <meta name="description" content="115年公共工程品質管理訓練班（土建）題庫刷題、歷次模考錯題記錄、考點解析與單元練習。">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5056079261224179" crossorigin="anonymous"></script>
 
     <!-- Tailwind CSS & FontAwesome -->
@@ -43,16 +43,16 @@
                 <span>土建品管班題庫</span>
             </button>
             <div class="flex items-center gap-2 text-sm">
-                <button onclick="toggleDarkMode()" title="深色模式" class="p-1.5 rounded-lg bg-indigo-500/30 dark:bg-slate-700 hover:bg-indigo-500/50 transition">
+                <button onclick="toggleDarkMode()" title="切換深色模式" class="p-1.5 rounded-lg bg-indigo-500/30 dark:bg-slate-700 hover:bg-indigo-500/50 transition">
                     <i id="theme-icon" class="fa-solid fa-moon"></i>
                 </button>
                 <button onclick="showPracticedListView()" class="px-2.5 py-1 bg-emerald-500/90 hover:bg-emerald-500 rounded-lg text-xs font-medium flex items-center gap-1 transition shadow-sm">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                     <span>已練 (<span id="nav-practiced-count">0</span>)</span>
                 </button>
-                <button onclick="showMistakeView()" class="px-2.5 py-1 bg-rose-500/90 hover:bg-rose-500 rounded-lg text-xs font-medium flex items-center gap-1 transition shadow-sm">
+                <button onclick="showMistakeHubView()" class="px-2.5 py-1 bg-rose-500/90 hover:bg-rose-500 rounded-lg text-xs font-medium flex items-center gap-1 transition shadow-sm">
                     <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>錯題 (<span id="nav-mistake-count">0</span>)</span>
+                    <span>錯題本 (<span id="nav-mistake-count">0</span>)</span>
                 </button>
             </div>
         </div>
@@ -80,7 +80,7 @@
 
         <!-- 視圖 1：主儀表板 -->
         <div id="view-home" class="hidden space-y-4">
-            <!-- 數據概覽卡片（可直接點擊進速覽） -->
+            <!-- 數據概覽卡片 -->
             <div class="grid grid-cols-3 gap-3">
                 <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm">
                     <div class="text-xs text-slate-400 font-medium">總題數</div>
@@ -92,7 +92,7 @@
                     </div>
                     <div id="stat-practiced" class="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">0</div>
                 </div>
-                <div onclick="showMistakeView()" class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm cursor-pointer hover:border-rose-500 transition active:scale-95">
+                <div onclick="showMistakeHubView()" class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-center shadow-sm cursor-pointer hover:border-rose-500 transition active:scale-95">
                     <div class="text-xs text-slate-400 font-medium flex items-center justify-center gap-1">
                         <span>錯題分析</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                     </div>
@@ -154,13 +154,18 @@
                     </div>
                     <span class="bg-white/20 text-xs px-2.5 py-1 rounded-full font-semibold">50 題</span>
                 </div>
-                <button onclick="startMockExam()" class="w-full py-3 bg-white text-indigo-700 font-bold rounded-xl shadow-lg hover:bg-indigo-50 active:scale-95 transition text-sm">
-                    開始模擬考試
-                </button>
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                    <button onclick="startMockExam()" class="py-3 bg-white text-indigo-700 font-bold rounded-xl shadow-lg hover:bg-indigo-50 active:scale-95 transition text-sm">
+                        開始測驗
+                    </button>
+                    <button onclick="showMistakeHubView()" class="py-3 bg-indigo-500/30 border border-white/30 text-white font-bold rounded-xl hover:bg-indigo-500/50 active:scale-95 transition text-sm flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-clock-rotate-left"></i> 歷次模考錯題
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- 視圖 2：已練習題目快速閱覽清單 (支援單元篩選) -->
+        <!-- 視圖 2：已練習題目快速閱覽清單 (直接顯示正解字母與內容) -->
         <div id="view-practiced-list" class="hidden flex-1 flex flex-col space-y-3">
             <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
                 <div class="flex items-center gap-2">
@@ -182,13 +187,49 @@
 
             <!-- 清單滾動區域 -->
             <div id="practiced-cards-container" class="flex-1 space-y-3 overflow-y-auto max-h-[65vh] pr-1">
-                <!-- 動態注入題目卡片 -->
+                <!-- 動態注入已練習卡片 -->
             </div>
         </div>
 
-        <!-- 視圖 3：刷題與錯題分析介面 -->
+        <!-- 視圖 3：錯題中心 (依歷次模擬測驗 & 累積總錯題查看) -->
+        <div id="view-mistake-hub" class="hidden flex-1 flex flex-col space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                <div class="flex items-center gap-2">
+                    <button onclick="goHome()" class="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <h2 class="font-bold text-base text-slate-800 dark:text-slate-100">錯題分析與歷史紀錄</h2>
+                </div>
+            </div>
+
+            <!-- 總累積錯題按鈕 -->
+            <div onclick="startAllMistakesPractice()" class="bg-gradient-to-r from-rose-500 to-red-600 p-4 rounded-2xl text-white shadow-sm flex justify-between items-center cursor-pointer hover:opacity-95 transition active:scale-[0.99]">
+                <div>
+                    <div class="font-bold text-sm flex items-center gap-1.5">
+                        <i class="fa-solid fa-layer-group"></i> 累積所有總錯題
+                    </div>
+                    <div class="text-xs text-rose-100 mt-0.5">跨章節與所有模考中累積未消除之錯題</div>
+                </div>
+                <div class="text-right">
+                    <span id="hub-total-mistakes" class="text-xl font-black">0</span>
+                    <span class="text-xs text-rose-100 block">題待複習</span>
+                </div>
+            </div>
+
+            <!-- 歷次模擬測驗列表區塊 -->
+            <div class="space-y-2 flex-1 flex flex-col">
+                <div class="flex justify-between items-center text-xs font-semibold text-slate-500 px-1">
+                    <span><i class="fa-solid fa-clock-rotate-left mr-1"></i> 歷次模擬考錯題紀錄</span>
+                    <button onclick="clearExamHistory()" class="text-slate-400 hover:text-rose-500 transition text-[11px]">清空記錄</button>
+                </div>
+                <div id="exam-history-container" class="flex-1 space-y-2.5 overflow-y-auto max-h-[50vh] pr-1">
+                    <!-- 動態注入每次測驗紀錄 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 視圖 4：刷題與錯題分析介面 -->
         <div id="view-quiz" class="hidden flex-1 flex flex-col justify-between space-y-4">
-            <!-- 進度與計時器 -->
             <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-center text-xs font-semibold text-slate-600 dark:text-slate-300">
                 <div class="flex items-center gap-2">
                     <span id="quiz-mode-tag" class="bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 px-2.5 py-1 rounded-lg">單元練習</span>
@@ -218,7 +259,7 @@
                 <!-- 選項列表 -->
                 <div id="options-container" class="space-y-2.5 pt-1"></div>
 
-                <!-- 考點與題目解析卡片（答錯或背題/錯題模式時展示） -->
+                <!-- 考點與針對性深度解析卡片 -->
                 <div id="analysis-box" class="hidden bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-4 rounded-xl space-y-2.5 text-xs">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 text-sm">
@@ -229,17 +270,13 @@
                         </span>
                     </div>
                     
-                    <div id="analysis-content" class="text-slate-700 dark:text-slate-300 leading-relaxed bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700/50">
-                        <!-- 動態解析 -->
-                    </div>
+                    <div id="analysis-content" class="text-slate-700 dark:text-slate-300 leading-relaxed bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700/50"></div>
 
-                    <!-- 個人備忘筆記功能 -->
+                    <!-- 個人備忘筆記 -->
                     <div class="pt-1">
                         <div class="flex justify-between items-center mb-1">
                             <span class="text-[11px] text-slate-400 font-medium">個人重點筆記：</span>
-                            <button onclick="saveCurrentNote()" class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
-                                儲存筆記
-                            </button>
+                            <button onclick="saveCurrentNote()" class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">儲存筆記</button>
                         </div>
                         <textarea id="question-note-input" rows="2" placeholder="點此輸入您的自訂考點口訣或筆記..." class="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:ring-1 focus:ring-indigo-500 text-slate-700 dark:text-slate-200"></textarea>
                     </div>
@@ -262,7 +299,7 @@
             </div>
         </div>
 
-        <!-- 視圖 4：模擬考成績結算 -->
+        <!-- 視圖 5：模擬考成績結算 -->
         <div id="view-result" class="hidden space-y-5 py-4">
             <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm text-center space-y-4">
                 <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-3xl mb-1">
@@ -286,8 +323,8 @@
                 </div>
 
                 <div class="pt-2 flex gap-3">
-                    <button onclick="reviewExamMistakes()" class="flex-1 py-3 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 font-semibold rounded-xl text-sm">
-                        進入錯題詳細解析
+                    <button onclick="reviewCurrentExamMistakes()" class="flex-1 py-3 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 font-semibold rounded-xl text-sm">
+                        檢視本次錯題詳解
                     </button>
                     <button onclick="goHome()" class="flex-1 py-3 bg-indigo-600 text-white font-semibold rounded-xl text-sm shadow">
                         返回主頁
@@ -302,7 +339,7 @@
         公共工程品質管理訓練班（土建）題庫刷題系統
     </footer>
 
-    <!-- APP 邏輯控制 -->
+    <!-- APP 邏輯控制腳本 -->
     <script>
         let allQuestions = [];
         let currentQuestions = [];
@@ -313,12 +350,14 @@
         let examAnswers = {};
         let timerInterval = null;
         let examTimeRemaining = 3000;
+        let latestExamWrongIds = [];
 
-        // 本地持久化資料
+        // 本地儲存資料
         let userMistakes = JSON.parse(localStorage.getItem('qc_mistakes') || '[]');
         let userBookmarks = JSON.parse(localStorage.getItem('qc_bookmarks') || '[]');
         let userPracticed = JSON.parse(localStorage.getItem('qc_practiced') || '[]');
         let userNotes = JSON.parse(localStorage.getItem('qc_notes') || '{}');
+        let examHistory = JSON.parse(localStorage.getItem('qc_exam_history') || '[]');
 
         window.addEventListener('DOMContentLoaded', () => {
             initTheme();
@@ -385,9 +424,10 @@
             document.getElementById('stat-mistakes').innerText = userMistakes.length;
             document.getElementById('nav-practiced-count').innerText = userPracticed.length;
             document.getElementById('nav-mistake-count').innerText = userMistakes.length;
+            document.getElementById('hub-total-mistakes').innerText = userMistakes.length;
         }
 
-        // 啟動一般練習模式
+        // 啟動練習模式
         function startPractice(type) {
             const selectedUnit = document.getElementById('unit-select').value;
             let list = selectedUnit === 'ALL' 
@@ -415,15 +455,65 @@
             renderQuestion();
         }
 
-        // 啟動錯題分析模式
-        function showMistakeView() {
-            if (userMistakes.length === 0) return alert("目前沒有錯題紀錄！非常優秀！");
-            currentQuestions = allQuestions.filter(q => userMistakes.includes(q.id));
+        // 錯題中心與歷次模考清單
+        function showMistakeHubView() {
+            updateBadgesAndStats();
+            renderExamHistoryList();
+            switchView('mistake-hub');
+        }
+
+        function renderExamHistoryList() {
+            const container = document.getElementById('exam-history-container');
+            container.innerHTML = '';
+
+            if (!examHistory || examHistory.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-400 text-xs">
+                        尚無任何模擬考紀錄。<br>請點擊首頁「全真模擬測驗」開始練習！
+                    </div>
+                `;
+                return;
+            }
+
+            // 倒序展示（最新的在最上面）
+            examHistory.slice().reverse().forEach((record, revIdx) => {
+                const actualIndex = examHistory.length - 1 - revIdx;
+                const card = document.createElement('div');
+                card.className = "bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-center hover:border-indigo-500 transition";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                            <span class="bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded font-mono">#${actualIndex + 1}</span>
+                            <span>${record.timestamp}</span>
+                        </div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
+                            <span>得分：<b class="${record.score >= 60 ? 'text-emerald-600' : 'text-rose-600'}">${record.score} 分</b></span>
+                            <span>•</span>
+                            <span>錯題數：<b class="text-rose-500">${record.wrongIds.length} 題</b></span>
+                        </div>
+                    </div>
+                    <div>
+                        ${record.wrongIds.length > 0 
+                            ? `<button onclick="startSingleExamMistakesReview(${actualIndex})" class="px-3 py-1.5 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 font-semibold text-xs rounded-lg hover:bg-rose-100 transition">查看錯題 (${record.wrongIds.length})</button>`
+                            : `<span class="text-xs text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1 rounded">滿分全對 🎉</span>`
+                        }
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function startSingleExamMistakesReview(historyIndex) {
+            const record = examHistory[historyIndex];
+            if (!record || record.wrongIds.length === 0) return alert("此紀錄無錯題！");
+
+            currentQuestions = allQuestions.filter(q => record.wrongIds.includes(q.id));
             currentIndex = 0;
             isExamMode = false;
             isMistakeReviewMode = true;
-            isReciteMode = true; // 錯題模式預設直接顯示正解與解析
-            document.getElementById('quiz-mode-tag').innerText = "錯題深度分析";
+            isReciteMode = true;
+            document.getElementById('quiz-mode-tag').innerText = `模考 #${historyIndex + 1} 錯題詳解`;
             document.getElementById('exam-timer').classList.add('hidden');
             document.getElementById('submit-exam-btn').classList.add('hidden');
 
@@ -431,7 +521,30 @@
             renderQuestion();
         }
 
-        // 開啟已練習清單視圖 (支援單元篩選)
+        function startAllMistakesPractice() {
+            if (userMistakes.length === 0) return alert("目前累積錯題為 0！非常優秀！");
+            currentQuestions = allQuestions.filter(q => userMistakes.includes(q.id));
+            currentIndex = 0;
+            isExamMode = false;
+            isMistakeReviewMode = true;
+            isReciteMode = true;
+            document.getElementById('quiz-mode-tag').innerText = "累積總錯題詳解";
+            document.getElementById('exam-timer').classList.add('hidden');
+            document.getElementById('submit-exam-btn').classList.add('hidden');
+
+            switchView('quiz');
+            renderQuestion();
+        }
+
+        function clearExamHistory() {
+            if (confirm("確定要清空所有的歷次模擬測驗紀錄嗎？")) {
+                examHistory = [];
+                localStorage.removeItem('qc_exam_history');
+                renderExamHistoryList();
+            }
+        }
+
+        // 已練習清單 (直接顯示答案及該題解答)
         function showPracticedListView() {
             if (userPracticed.length === 0) {
                 return alert("尚未開始練習任何題目！請先進行單元練習或隨機刷題。");
@@ -476,6 +589,9 @@
 
             list.forEach(q => {
                 const isMistake = userMistakes.includes(q.id);
+                const ansKey = q.answer;
+                const ansText = q.options[ansKey] || '';
+                
                 const card = document.createElement('div');
                 card.className = "bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-2 cursor-pointer hover:border-indigo-500 transition";
                 card.onclick = () => jumpToSpecificQuestion(q.id);
@@ -483,15 +599,22 @@
                 card.innerHTML = `
                     <div class="flex justify-between items-center text-xs">
                         <span class="font-mono px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-slate-500 dark:text-slate-300">No. ${q.id}</span>
-                        <div class="flex items-center gap-2">
+                        <div>
                             ${isMistake ? '<span class="text-[10px] bg-rose-50 dark:bg-rose-950 text-rose-600 px-1.5 py-0.5 rounded font-bold"><i class="fa-solid fa-xmark"></i> 曾答錯</span>' : '<span class="text-[10px] bg-emerald-50 dark:bg-emerald-950 text-emerald-600 px-1.5 py-0.5 rounded font-bold"><i class="fa-solid fa-check"></i> 已掌握</span>'}
-                            <span class="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded">正解：(${q.answer})</span>
                         </div>
                     </div>
+                    
                     <div class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug">${q.stem}</div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+
+                    <!-- 直接顯示正確答案及該題解答內容，例如：(C) 10公分 -->
+                    <div class="bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 p-2.5 rounded-lg text-xs flex items-start gap-1.5">
+                        <span class="font-bold text-emerald-700 dark:text-emerald-300 shrink-0">🎯 正解：</span>
+                        <span class="font-bold text-emerald-800 dark:text-emerald-200 leading-relaxed">(${ansKey})：${ansText}</span>
+                    </div>
+
+                    <div class="text-xs text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                         <span class="truncate max-w-[220px]">${q.unit}</span>
-                        <span class="text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1">點擊複習 <i class="fa-solid fa-chevron-right text-[10px]"></i></span>
+                        <span class="text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1">複習詳解 <i class="fa-solid fa-chevron-right text-[10px]"></i></span>
                     </div>
                 `;
                 container.appendChild(card);
@@ -504,14 +627,14 @@
                 currentQuestions = [allQuestions[idx]];
                 currentIndex = 0;
                 isExamMode = false;
-                isReciteMode = true; // 點選快速閱覽進入時自動展開解析
+                isReciteMode = true;
                 document.getElementById('quiz-mode-tag').innerText = "題目詳解複習";
                 switchView('quiz');
                 renderQuestion();
             }
         }
 
-        // 渲染題目與智慧解析
+        // 題目與深度解析渲染
         function renderQuestion() {
             if (currentQuestions.length === 0) return;
             const q = currentQuestions[currentIndex];
@@ -521,12 +644,10 @@
             document.getElementById('question-id-label').innerText = `No. ${q.id}`;
             document.getElementById('question-stem').innerText = q.stem;
 
-            // 收藏星號
             const isBookmarked = userBookmarks.includes(q.id);
             const bmBtn = document.getElementById('quiz-bookmark-btn');
             bmBtn.innerHTML = isBookmarked ? '<i class="fa-solid fa-star text-amber-500"></i>' : '<i class="fa-regular fa-star"></i>';
 
-            // 選項渲染
             const container = document.getElementById('options-container');
             container.innerHTML = '';
 
@@ -570,7 +691,6 @@
                 container.appendChild(btn);
             });
 
-            // 處理解析區塊展示
             const analysisBox = document.getElementById('analysis-box');
             if (isReciteMode || isMistakeReviewMode) {
                 displayQuestionAnalysis(q);
@@ -579,10 +699,8 @@
                 analysisBox.classList.add('hidden');
             }
 
-            // 載入筆記
             document.getElementById('question-note-input').value = userNotes[q.id] || '';
 
-            // 紀錄為已練習
             if (!userPracticed.includes(q.id)) {
                 userPracticed.push(q.id);
                 localStorage.setItem('qc_practiced', JSON.stringify(userPracticed));
@@ -590,7 +708,6 @@
             }
         }
 
-        // 答題判斷
         function checkPracticeAnswer(btnEl, selectedKey, correctKey, q) {
             const container = document.getElementById('options-container');
             const btns = container.querySelectorAll('button');
@@ -611,9 +728,7 @@
                 }
             }
 
-            // 答題後自動展開該題考點解析
             displayQuestionAnalysis(q);
-
             localStorage.setItem('qc_mistakes', JSON.stringify(userMistakes));
             updateBadgesAndStats();
         }
@@ -629,28 +744,94 @@
             });
         }
 
-        // 產生考點解析說明
+        // 針對性深度解析引擎
         function displayQuestionAnalysis(q) {
             const analysisBox = document.getElementById('analysis-box');
             analysisBox.classList.remove('hidden');
             document.getElementById('analysis-correct-key').innerText = `(${q.answer}) ${q.options[q.answer] || ''}`;
 
-            const contentEl = document.getElementById('analysis-content');
-            
-            // 結構化解析說明
-            contentEl.innerHTML = `
-                <div class="space-y-1.5">
-                    <p class="font-medium text-slate-800 dark:text-slate-200">
-                        📌 <b>所屬單元考點：</b>${q.unit}
-                    </p>
-                    <p class="text-slate-600 dark:text-slate-300">
-                        💡 <b>解題關鍵：</b>本題標準解答為 <span class="font-bold text-emerald-600 dark:text-emerald-400">(${q.answer}) ${q.options[q.answer] || ''}</span>。請特別注意題目敘述中之「非屬」、「應」、「不包含」等限定條件與法規手冊規範。
-                    </p>
-                </div>
-            `;
+            const stem = q.stem;
+            const correctOpt = q.options[q.answer] || '';
+            const unit = q.unit;
+            let explanationHtml = '';
+
+            const isNegative = /(非屬|何者為非|不包含|不包括|何者非|不屬於|何者錯誤|何者不妥|不合適)/.test(stem);
+            const isDuty = /(監造|品管|自主檢查|抽查|查驗|廠商|專任工程人員|工地主任)/.test(stem);
+            const isNumber = /(\d+|天|日|%|公尺|公分|小時|MPa|組|顆)/.test(stem) || /(\d+|天|日|%|公尺|公分|小時|MPa|組|顆)/.test(correctOpt);
+            const isAllAbove = /(以上皆是|以上均可|以上皆非|以上均非|以上均屬之|以上均正確)/.test(correctOpt);
+
+            if (isAllAbove) {
+                explanationHtml = `
+                    <div class="space-y-2">
+                        <div class="text-amber-800 dark:text-amber-300 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-list-check"></i> 題意關鍵：全涵蓋要件題
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-200">
+                            本題標準正解為 <b>(${q.answer}) ${correctOpt}</b>。題幹所列各要件均完全符合<b>【${unit}】</b>之法定標準程序與規範要件，應同時納入管制。
+                        </p>
+                    </div>
+                `;
+            } else if (isNegative) {
+                explanationHtml = `
+                    <div class="space-y-2">
+                        <div class="text-rose-700 dark:text-rose-300 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-ban"></i> 題意關鍵：反向排除錯誤選項
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-200">
+                            本題為<b>反向否定題</b>。正解為 <b>(${q.answer}) ${correctOpt}</b>，此項目<b>不符合</b>相關法規、規範或品管手冊之定義（其餘三個選項皆為合規之標準內容）。
+                        </p>
+                        <p class="text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/50 p-2 rounded">
+                            📌 <b>審題要訣：</b>題目若出現「非」、「不」，請注意排除干擾選項。
+                        </p>
+                    </div>
+                `;
+            } else if (isDuty) {
+                explanationHtml = `
+                    <div class="space-y-2">
+                        <div class="text-indigo-700 dark:text-indigo-300 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-user-shield"></i> 題意關鍵：三級品管體系權責劃分
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-200">
+                            本題考核<b>三級品管制度</b>職責：
+                            <br>• <b>第一級 (廠商)</b>：負責自主檢查、編寫品質計畫。
+                            <br>• <b>第二級 (監造)</b>：負責施工抽查、材料設備抽驗、核可計畫。
+                            <br>• <b>第三級 (主辦/查核小組)</b>：督導與查核。
+                        </p>
+                        <p class="text-emerald-700 dark:text-emerald-300 font-medium">
+                            💡 正確答案為 <b>(${q.answer}) ${correctOpt}</b>，符合法定定義。
+                        </p>
+                    </div>
+                `;
+            } else if (isNumber) {
+                explanationHtml = `
+                    <div class="space-y-2">
+                        <div class="text-blue-700 dark:text-blue-300 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-ruler-combined"></i> 題意關鍵：法定數值規範與天數期限
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-200">
+                            本題屬<b>法規數據與時間期限精準考點</b>。標準規定數值為：<b class="text-emerald-600 dark:text-emerald-400 text-sm">(${q.answer}) ${correctOpt}</b>。
+                        </p>
+                        <p class="text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/50 p-2 rounded">
+                            📌 <b>記憶技巧：</b>此類數值題（如拆模天數、檢驗頻率、審核期限）常出現在各類考試，建議在下方筆記欄標註口訣加深印象！
+                        </p>
+                    </div>
+                `;
+            } else {
+                explanationHtml = `
+                    <div class="space-y-2">
+                        <div class="text-indigo-700 dark:text-indigo-300 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-circle-info"></i> 題意解析與考點歸納
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-200">
+                            依據<b>【${unit}】</b>之規範核心，本題正確解答為 <b>(${q.answer}) ${correctOpt}</b>。其餘選項敘述均與現行公共工程施工規範牴觸。
+                        </p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('analysis-content').innerHTML = explanationHtml;
         }
 
-        // 儲存使用者自訂筆記
         function saveCurrentNote() {
             const q = currentQuestions[currentIndex];
             const text = document.getElementById('question-note-input').value.trim();
@@ -663,7 +844,7 @@
             alert("筆記已成功儲存！");
         }
 
-        // 模擬考試相關
+        // 模擬測驗與自動儲存歷史紀錄
         function startMockExam() {
             isExamMode = true;
             isReciteMode = false;
@@ -674,7 +855,7 @@
             currentQuestions = [...allQuestions].sort(() => Math.random() - 0.5).slice(0, 50);
             currentIndex = 0;
 
-            document.getElementById('quiz-mode-tag').innerText = "模擬測驗";
+            document.getElementById('quiz-mode-tag').innerText = "模擬測驗 (50題)";
             document.getElementById('exam-timer').classList.remove('hidden');
             document.getElementById('submit-exam-btn').classList.remove('hidden');
 
@@ -706,6 +887,7 @@
         function submitExam() {
             clearInterval(timerInterval);
             let score = 0, correctCount = 0, wrongCount = 0;
+            latestExamWrongIds = [];
 
             currentQuestions.forEach(q => {
                 if (examAnswers[q.id] === q.answer) {
@@ -713,11 +895,25 @@
                     correctCount++;
                 } else {
                     wrongCount++;
+                    latestExamWrongIds.push(q.id);
                     if (!userMistakes.includes(q.id)) {
                         userMistakes.push(q.id);
                     }
                 }
             });
+
+            // 格式化當前時間 (YYYY/MM/DD HH:MM)
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+
+            // 將本次模擬考紀錄保存至 examHistory
+            examHistory.push({
+                timestamp: timeStr,
+                score: score,
+                total: currentQuestions.length,
+                wrongIds: latestExamWrongIds
+            });
+            localStorage.setItem('qc_exam_history', JSON.stringify(examHistory));
 
             localStorage.setItem('qc_mistakes', JSON.stringify(userMistakes));
             updateBadgesAndStats();
@@ -729,20 +925,19 @@
             switchView('result');
         }
 
-        function reviewExamMistakes() {
-            const wrongIds = currentQuestions.filter(q => examAnswers[q.id] !== q.answer).map(q => q.id);
-            if (wrongIds.length === 0) return alert("本次模擬考全部答對，太厲害了！");
-            currentQuestions = allQuestions.filter(q => wrongIds.includes(q.id));
+        function reviewCurrentExamMistakes() {
+            if (latestExamWrongIds.length === 0) return alert("本次測驗滿分全對，沒有錯題！");
+            currentQuestions = allQuestions.filter(q => latestExamWrongIds.includes(q.id));
             currentIndex = 0;
             isExamMode = false;
             isMistakeReviewMode = true;
             isReciteMode = true;
-            document.getElementById('quiz-mode-tag').innerText = "本次模考錯題解析";
+            document.getElementById('quiz-mode-tag').innerText = "本次模擬考錯題詳解";
             switchView('quiz');
             renderQuestion();
         }
 
-        // 翻頁控制與收藏
+        // 題目切換與導航
         function nextQuestion() {
             if (currentIndex < currentQuestions.length - 1) {
                 currentIndex++;
@@ -782,6 +977,7 @@
             document.getElementById('view-quiz').classList.toggle('hidden', viewName !== 'quiz');
             document.getElementById('view-result').classList.toggle('hidden', viewName !== 'result');
             document.getElementById('view-practiced-list').classList.toggle('hidden', viewName !== 'practiced-list');
+            document.getElementById('view-mistake-hub').classList.toggle('hidden', viewName !== 'mistake-hub');
         }
 
         function initTheme() {
